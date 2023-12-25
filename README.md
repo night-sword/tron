@@ -1,2 +1,0 @@
-# tron
-tron sdk
