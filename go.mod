@@ -1,4 +1,4 @@
-module github.com/night-sword/pkg/tron
+module github.com/night-sword/tron
 
 go 1.21.0
 
