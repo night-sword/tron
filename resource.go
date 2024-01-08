@@ -25,14 +25,16 @@ func (inst *resource) GetByAccount(address Address) (r *AccountResource, err err
 
 	r = &AccountResource{
 		FreeNetLimit:      rs.GetFreeNetLimit(),
+		NetUsed:           rs.GetNetUsed(),
 		NetLimit:          rs.GetNetLimit(),
-		TotalNetLimit:     rs.GetTotalNetLimit(),
-		TotalNetWeight:    rs.GetTotalNetWeight(),
-		TronPowerUsed:     rs.GetTronPowerUsed(),
-		TronPowerLimit:    rs.GetTronPowerLimit(),
 		EnergyLimit:       rs.GetEnergyLimit(),
+		EnergyUsed:        rs.GetEnergyUsed(),
+		TotalNetWeight:    rs.GetTotalNetWeight(),
+		TotalNetLimit:     rs.GetTotalNetLimit(),
 		TotalEnergyLimit:  rs.GetTotalEnergyLimit(),
 		TotalEnergyWeight: rs.GetTotalEnergyWeight(),
+		TronPowerUsed:     rs.GetTronPowerUsed(),
+		TronPowerLimit:    rs.GetTronPowerLimit(),
 	}
 	return
 }
