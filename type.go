@@ -3,7 +3,7 @@ package tron
 import (
 	"math"
 
-	"github.com/go-kratos/kratos/v2/errors"
+	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
 )
 
@@ -24,7 +24,7 @@ func (inst Address) IsValid() (valid bool) {
 func AddressFromStr(addr string) (address Address, err error) {
 	address = Address(addr)
 	if !address.IsValid() {
-		err = errors.BadRequest("ERR_PARAM", "address invalid")
+		err = errors.New("invalid address")
 	}
 
 	return
@@ -42,7 +42,7 @@ func (inst SUN) Int64() int64 {
 
 func (inst SUN) Int64E() (i int64, err error) {
 	if i, err = cvt.Int64E(inst); err != nil {
-		err = errors.BadRequest("ERR_PARAM", "amount error").WithCause(err)
+		err = errors.New("amount error")
 	}
 	return
 }
@@ -53,7 +53,7 @@ func (inst SUN) Uint64() uint64 {
 
 func (inst SUN) Uint64E() (u uint64, err error) {
 	if u, err = cvt.Uint64E(inst); err != nil {
-		err = errors.BadRequest("ERR_PARAM", "amount error").WithCause(err)
+		err = errors.New("amount error")
 	}
 	return
 }
@@ -66,7 +66,7 @@ func (inst TRX) Float64() float64 {
 
 func (inst TRX) Float64E() (f float64, err error) {
 	if f, err = cvt.Float64E(inst); err != nil {
-		err = errors.BadRequest("ERR_PARAM", "amount error").WithCause(err)
+		err = errors.New("amount error")
 	}
 	return
 }
