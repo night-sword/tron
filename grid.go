@@ -50,7 +50,7 @@ func (inst *Grid) GetAccountInfo(ctx context.Context, address Address) (account 
 	return
 }
 
-func (inst *Grid) GetContractRecentTxsByTs(ctx context.Context, contract, address Address, lastTs int64, only DIRECTION) (txs []*ContractTransaction, err error) {
+func (inst *Grid) GetContractRecentTxsByTs(ctx context.Context, contract, address Address, lastTs int64, only DIRECTION) (txs []*ContractTransaction, last int64, err error) {
 	list, err := inst.GetContractTxsByTs(ctx, address, lastTs, only)
 	if err != nil {
 		return
@@ -58,6 +58,8 @@ func (inst *Grid) GetContractRecentTxsByTs(ctx context.Context, contract, addres
 
 	txs = make([]*ContractTransaction, 0, len(list))
 	for _, tx := range list {
+		last = tx.BlockTimestamp
+
 		if tx.Type != "Transfer" {
 			continue
 		}

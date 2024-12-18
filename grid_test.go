@@ -31,12 +31,16 @@ func TestGrid_GetAccountInfo(t *testing.T) {
 
 func TestGrid_GetUSDTRecentTxsByTs(t *testing.T) {
 	grid := getGrid()
-	txs, err := grid.GetContractRecentTxsByTs(context.Background(), "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs", from, 0, "")
+	txs, last, err := grid.GetContractRecentTxsByTs(context.Background(), "TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs", from, 1734513174000, "")
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(txs)
+	fmt.Println(last)
+
+	for _, tx := range txs {
+		fmt.Println(tx)
+	}
 }
 
 func getGrid() (grid *Grid) {
