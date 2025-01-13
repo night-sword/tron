@@ -3,7 +3,6 @@ package tron
 import (
 	"crypto/sha256"
 
-	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/fbsobreira/gotron-sdk/pkg/client"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
@@ -68,9 +67,12 @@ func (inst *transaction) Sign(tx *api.TransactionExtention, operator Address) (s
 		return
 	}
 
-	// btcec.PrivKeyFromBytes only returns a secret key and public key
-	sk, _ := btcec.PrivKeyFromBytes(key)
-	signature, err = crypto.Sign(hash, sk.ToECDSA())
+	sk, err := crypto.ToECDSA(key)
+	if err != nil {
+		return
+	}
+
+	signature, err = crypto.Sign(hash, sk)
 	return
 }
 
