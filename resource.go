@@ -1,7 +1,11 @@
 package tron
 
 import (
+	"context"
+
 	"github.com/fbsobreira/gotron-sdk/pkg/client"
+	"github.com/fbsobreira/gotron-sdk/pkg/common"
+	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/pkg/errors"
 )
@@ -143,16 +147,37 @@ func (inst *resource) CalcTRXStakeForBandwidth(bandwidth uint64) (trx TRX, err e
 	return
 }
 
-// Obtain the list of resources proxied out from this address to other addresses.
-func (inst *resource) GetDelegatedResourcesTo(from Address) (list []*core.DelegatedResource, err error) {
-	_list, err := inst.client.GetDelegatedResourcesV2(from.String())
+// In Stake2.0, query the resource delegation index by an account. Two lists will return, one is the list of addresses the account has delegated its resources(toAddress), and the other is the list of addresses that have delegated resources to the account(fromAddress).
+func (inst *resource) GetDelegatedResourceAccountIndexV2(ctx context.Context, account Address) (rsp *core.DelegatedResourceAccountIndex, err error) {
+	_account, err := common.DecodeCheck(account.String())
 	if err != nil {
 		return
 	}
 
-	list = make([]*core.DelegatedResource, 0, len(_list))
-	for _, resourceList := range _list {
-		list = append(list, resourceList.GetDelegatedResource()...)
+	rsp, err = inst.client.Client.GetDelegatedResourceAccountIndexV2(ctx, client.GetMessageBytes(_account))
+	return
+}
+
+// In Stake2.0, query the detail of resource share delegated from fromAddress to toAddress
+func (inst *resource) GetDelegatedResourceV2(ctx context.Context, from, to Address) (list []*core.DelegatedResource, err error) {
+	_from, err := common.DecodeCheck(from.String())
+	if err != nil {
+		return
 	}
+	_to, err := common.DecodeCheck(to.String())
+	if err != nil {
+		return
+	}
+
+	req := &api.DelegatedResourceMessage{
+		FromAddress: _from,
+		ToAddress:   _to,
+	}
+	rsp, err := inst.client.Client.GetDelegatedResourceV2(ctx, req)
+	if err != nil {
+		return
+	}
+
+	list = rsp.GetDelegatedResource()
 	return
 }
