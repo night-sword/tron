@@ -144,8 +144,8 @@ func NewDelegatedResource(from *core.DelegatedResource) *DelegatedResource {
 	}
 
 	return &DelegatedResource{
-		From:            Address(from.From),
-		To:              Address(from.To),
+		From:            Address(common.EncodeCheck(from.From)),
+		To:              Address(common.EncodeCheck(from.To)),
 		TRXForBandwidth: SUN(trxForBandwidth),
 		TRXForEnergy:    SUN(trxForEnergy),
 	}
