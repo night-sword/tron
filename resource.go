@@ -2,7 +2,7 @@ package tron
 
 import (
 	"github.com/fbsobreira/gotron-sdk/pkg/client"
-	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
+	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/pkg/errors"
 )
 
@@ -144,7 +144,15 @@ func (inst *resource) CalcTRXStakeForBandwidth(bandwidth uint64) (trx TRX, err e
 }
 
 // Obtain the list of resources proxied out from this address to other addresses.
-func (inst *resource) GetDelegatedResourcesTo(from Address) (list []*api.DelegatedResourceList, err error) {
-	list, err = inst.client.GetDelegatedResourcesV2(from.String())
+func (inst *resource) GetDelegatedResourcesTo(from Address) (list []*core.DelegatedResource, err error) {
+	_list, err := inst.client.GetDelegatedResourcesV2(from.String())
+	if err != nil {
+		return
+	}
+
+	list = make([]*core.DelegatedResource, 0, len(_list))
+	for _, resourceList := range _list {
+		list = append(list, resourceList.GetDelegatedResource()...)
+	}
 	return
 }
