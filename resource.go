@@ -6,7 +6,6 @@ import (
 	"github.com/fbsobreira/gotron-sdk/pkg/client"
 	"github.com/fbsobreira/gotron-sdk/pkg/common"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
-	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/pkg/errors"
 )
 
@@ -148,18 +147,23 @@ func (inst *resource) CalcTRXStakeForBandwidth(bandwidth uint64) (trx TRX, err e
 }
 
 // In Stake2.0, query the resource delegation index by an account. Two lists will return, one is the list of addresses the account has delegated its resources(toAddress), and the other is the list of addresses that have delegated resources to the account(fromAddress).
-func (inst *resource) GetDelegatedResourceAccountIndexV2(ctx context.Context, account Address) (rsp *core.DelegatedResourceAccountIndex, err error) {
+func (inst *resource) GetDelegatedResourceAccountIndexV2(ctx context.Context, account Address) (result *DelegatedResourceAccountIndex, err error) {
 	_account, err := common.DecodeCheck(account.String())
 	if err != nil {
 		return
 	}
 
-	rsp, err = inst.client.Client.GetDelegatedResourceAccountIndexV2(ctx, client.GetMessageBytes(_account))
+	rsp, err := inst.client.Client.GetDelegatedResourceAccountIndexV2(ctx, client.GetMessageBytes(_account))
+	if err != nil {
+		return
+	}
+
+	result = NewDelegatedResourceAccountIndex(rsp)
 	return
 }
 
 // In Stake2.0, query the detail of resource share delegated from fromAddress to toAddress
-func (inst *resource) GetDelegatedResourceV2(ctx context.Context, from, to Address) (list []*core.DelegatedResource, err error) {
+func (inst *resource) GetDelegatedResourceV2(ctx context.Context, from, to Address) (list DelegatedResourceSlice, err error) {
 	_from, err := common.DecodeCheck(from.String())
 	if err != nil {
 		return
@@ -178,6 +182,6 @@ func (inst *resource) GetDelegatedResourceV2(ctx context.Context, from, to Addre
 		return
 	}
 
-	list = rsp.GetDelegatedResource()
+	list = NewDelegatedResourceSlice(rsp.GetDelegatedResource())
 	return
 }

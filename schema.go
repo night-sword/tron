@@ -1,6 +1,9 @@
 package tron
 
-import "github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+import (
+	"github.com/fbsobreira/gotron-sdk/pkg/common"
+	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+)
 
 type Resource string
 
@@ -94,4 +97,66 @@ type SmartContractEvent struct {
 	To       Address
 	Amount   SUN
 	Method   ContractMethod
+}
+
+type DelegatedResourceAccountIndex struct {
+	Account      Address   `json:"account,omitempty"`
+	FromAccounts []Address `json:"fromAccounts,omitempty"`
+	ToAccounts   []Address `json:"toAccounts,omitempty"`
+	Timestamp    int64     `json:"timestamp,omitempty"`
+}
+
+func NewDelegatedResourceAccountIndex(from *core.DelegatedResourceAccountIndex) *DelegatedResourceAccountIndex {
+	fromAccounts := make([]Address, len(from.FromAccounts))
+	toAccounts := make([]Address, len(from.ToAccounts))
+
+	for i, v := range from.FromAccounts {
+		fromAccounts[i] = Address(common.EncodeCheck(v))
+	}
+	for i, v := range from.ToAccounts {
+		toAccounts[i] = Address(common.EncodeCheck(v))
+	}
+
+	return &DelegatedResourceAccountIndex{
+		Account:      Address(common.EncodeCheck(from.Account)),
+		FromAccounts: fromAccounts,
+		ToAccounts:   toAccounts,
+		Timestamp:    from.Timestamp,
+	}
+}
+
+type DelegatedResource struct {
+	From            Address `json:"from,omitempty"`
+	To              Address `json:"to,omitempty"`
+	TRXForBandwidth SUN     `json:"trx_for_bandwidth,omitempty"`
+	TRXForEnergy    SUN     `json:"trx_for_energy,omitempty"`
+}
+
+func NewDelegatedResource(from *core.DelegatedResource) *DelegatedResource {
+	trxForBandwidth := from.FrozenBalanceForBandwidth
+	if trxForBandwidth < 0 {
+		trxForBandwidth = 0
+	}
+
+	trxForEnergy := from.FrozenBalanceForEnergy
+	if trxForEnergy < 0 {
+		trxForEnergy = 0
+	}
+
+	return &DelegatedResource{
+		From:            Address(from.From),
+		To:              Address(from.To),
+		TRXForBandwidth: SUN(trxForBandwidth),
+		TRXForEnergy:    SUN(trxForEnergy),
+	}
+}
+
+type DelegatedResourceSlice []*DelegatedResource
+
+func NewDelegatedResourceSlice(from []*core.DelegatedResource) (to DelegatedResourceSlice) {
+	to = make([]*DelegatedResource, len(from))
+	for i, v := range from {
+		to[i] = NewDelegatedResource(v)
+	}
+	return to
 }
