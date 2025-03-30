@@ -14,9 +14,23 @@ import (
 func NewFullNode(grpcClient *client.GrpcClient, httpClient *resty.Client) *FullNode {
 	panic(
 		wire.Build(
-			newResource, newPrivateKey, newNetwork,
-			newTransaction, newTransfer, newAccount,
+			newAccount,
+			newNetwork,
+			newResource,
+			newTransfer,
+			newSolidity,
+			newPrivateKey,
+			newTransaction,
 			newFullNode,
+		),
+	)
+}
+
+func NewGrid(client *resty.Client) *Grid {
+	panic(
+		wire.Build(
+			newApiKeys,
+			newGrid,
 		),
 	)
 }

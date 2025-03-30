@@ -152,16 +152,22 @@ func Test_GetCurrentBandwidthPrice(t *testing.T) {
 	fmt.Println(price, err)
 }
 
+// GetTransactionById
+func Test_Solidity_IsTxConfirmed(t *testing.T) {
+	node := getFullNode()
+	ok, err := node.Solidity.IsTxConfirmed(context.Background(), "")
+	fmt.Println(ok, err)
+}
+
 func getFullNode() *FullNode {
+	//grpcClient, err := NewGrpcClient("grpc.shasta.trongrid.io:50051")
 	grpcClient, err := NewGrpcClient("grpc.trongrid.io:50051")
 	if err != nil {
 		panic(err)
 	}
 
 	httpClient := NewHttpClient("https://api.trongrid.io")
-	if err != nil {
-		panic(err)
-	}
+	//httpClient := NewHttpClient("https://api.shasta.trongrid.io")
 
 	w := NewFullNode(grpcClient, httpClient)
 	err = w.PrivateKey.Append(from, key)

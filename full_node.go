@@ -7,9 +7,10 @@ type FullNode struct {
 	Transaction *transaction
 	Account     *account
 	Network     *network
+	Solidity    *solidity
 }
 
-func newFullNode(privateKey *privateKey, resource *resource, transfer *transfer, transaction *transaction, account *account, network *network) *FullNode {
+func newFullNode(privateKey *privateKey, resource *resource, transfer *transfer, transaction *transaction, account *account, network *network, solidity *solidity) *FullNode {
 	return &FullNode{
 		PrivateKey:  privateKey,
 		Resource:    resource,
@@ -17,5 +18,6 @@ func newFullNode(privateKey *privateKey, resource *resource, transfer *transfer,
 		Transaction: transaction,
 		Account:     account,
 		Network:     network,
+		Solidity:    solidity,
 	}
 }

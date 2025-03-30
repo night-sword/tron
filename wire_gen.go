@@ -10,7 +10,7 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// Injectors from full_node_wire.go:
+// Injectors from wire.go:
 
 func NewFullNode(grpcClient *client.GrpcClient, httpClient *resty.Client) *FullNode {
 	tronPrivateKey := newPrivateKey()
@@ -19,11 +19,10 @@ func NewFullNode(grpcClient *client.GrpcClient, httpClient *resty.Client) *FullN
 	tronTransfer := newTransfer(grpcClient, tronTransaction)
 	tronAccount := newAccount(grpcClient, tronTransaction)
 	tronNetwork := newNetwork(grpcClient, httpClient)
-	fullNode := newFullNode(tronPrivateKey, tronResource, tronTransfer, tronTransaction, tronAccount, tronNetwork)
+	tronSolidity := newSolidity(httpClient)
+	fullNode := newFullNode(tronPrivateKey, tronResource, tronTransfer, tronTransaction, tronAccount, tronNetwork, tronSolidity)
 	return fullNode
 }
-
-// Injectors from grid_wire.go:
 
 func NewGrid(client2 *resty.Client) *Grid {
 	tronApiKey := newApiKeys()

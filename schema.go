@@ -160,3 +160,12 @@ func NewDelegatedResourceSlice(from []*core.DelegatedResource) (to DelegatedReso
 	}
 	return to
 }
+
+type GetTransactionByIdResponse struct {
+	Ret []struct {
+		ContractRet string `json:"contractRet"`
+	} `json:"ret"`
+	Signature  []string `json:"signature"`
+	TxID       string   `json:"txID"`
+	RawDataHex string   `json:"raw_data_hex"`
+}
