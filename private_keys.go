@@ -28,7 +28,10 @@ func (inst *privateKey) Get(address Address) (key []byte, err error) {
 		err = errors.New("address key not found")
 		return
 	}
-
+	if len(key) == 0 {
+		err = errors.New("address key is empty")
+		return
+	}
 	return
 }
 

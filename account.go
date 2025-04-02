@@ -5,6 +5,7 @@ import (
 
 	"github.com/fbsobreira/gotron-sdk/pkg/client"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+	"github.com/pkg/errors"
 )
 
 type account struct {
@@ -127,5 +128,26 @@ func (inst *account) GetAccountBalance(address Address) (balance *Balance, err e
 			ToBeWithdrawn: toBeWithdrawn,
 		},
 	}
+	return
+}
+
+// Get account USDT balance
+func (inst *account) GetUSDTBalance(address Address, contract Address) (balance SUN, err error) {
+	if address.String() == "" {
+		err = errors.New("address is empty")
+		return
+	}
+	if contract.String() == "" {
+		err = errors.New("contract is empty")
+		return
+	}
+
+	rsp, err := inst.client.TRC20ContractBalance(address.String(), contract.String())
+	if err != nil {
+		err = errors.Wrap(err, "Call TRC20ContractBalance fail")
+		return
+	}
+
+	balance = SUN(rsp.Int64())
 	return
 }

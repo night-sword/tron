@@ -13,7 +13,9 @@ var from = Address(os.Getenv("ADDR_FROM"))
 var to = Address(os.Getenv("ADDR_TO"))
 var key = os.Getenv("PRIVATE_KEY")
 var blockNum = os.Getenv("BLOCK_NUM")
+
 var USDT_CONTRACT = Address("TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs")
+//var USDT_CONTRACT = Address("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
 
 func Test_Transfer(t *testing.T) {
 	wallet := getFullNode()
@@ -159,15 +161,27 @@ func Test_Solidity_IsTxConfirmed(t *testing.T) {
 	fmt.Println(ok, err)
 }
 
+func Test_Account_GetUSDTBalance(t *testing.T) {
+	node := getFullNode()
+	balance, err := node.Account.GetUSDTBalance(to, USDT_CONTRACT)
+	fmt.Println(balance, err)
+}
+
+func Test_Transfer_TransferUSDT(t *testing.T) {
+	node := getFullNode()
+	txID, err := node.Transfer.TransferUSDT(from, to, USDT_CONTRACT, 1000000, from, 100*SUN_VALUE, 0)
+	fmt.Println(txID, err)
+}
+
 func getFullNode() *FullNode {
-	//grpcClient, err := NewGrpcClient("grpc.shasta.trongrid.io:50051")
 	grpcClient, err := NewGrpcClient("grpc.trongrid.io:50051")
+	//grpcClient, err := NewGrpcClient("grpc.shasta.trongrid.io:50051") // shasta
 	if err != nil {
 		panic(err)
 	}
 
 	httpClient := NewHttpClient("https://api.trongrid.io")
-	//httpClient := NewHttpClient("https://api.shasta.trongrid.io")
+	//httpClient := NewHttpClient("https://api.shasta.trongrid.io") // shasta
 
 	w := NewFullNode(grpcClient, httpClient)
 	err = w.PrivateKey.Append(from, key)

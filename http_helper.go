@@ -3,22 +3,21 @@ package tron
 import (
 	"context"
 	"encoding/json"
-	"errors"
-	"fmt"
 
 	"github.com/go-resty/resty/v2"
 	"github.com/google/go-querystring/query"
+	"github.com/pkg/errors"
 )
 
 func decodeJsonResponse[T any](response *resty.Response) (rsp *T, err error) {
 	if response.StatusCode() != 200 {
-		err = errors.New(fmt.Sprintf("response code is %d", response.StatusCode()))
+		err = errors.Errorf("response code is %d", response.StatusCode())
 		return
 	}
 
 	err = json.Unmarshal(response.Body(), &rsp)
 	if err != nil {
-		err = errors.New(fmt.Sprintf("decode response fail"))
+		err = errors.Wrap(err, "decode response fail")
 	}
 	return
 }
@@ -38,7 +37,7 @@ func httpGetParams[Request, Response any](ctx context.Context, client *resty.Cli
 	if req != nil {
 		r, e := query.Values(req)
 		if err = e; err != nil {
-			err = errors.New(fmt.Sprintf("build query params error:%s", err.Error()))
+			err = errors.Wrap(err, "build query params error")
 			return
 		}
 
