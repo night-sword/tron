@@ -7,6 +7,7 @@ import (
 
 	"github.com/fbsobreira/gotron-sdk/pkg/client"
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/api"
+	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
@@ -60,6 +61,10 @@ func (inst *network) GetCurrentBandwidthPrice(ctx context.Context) (bandwidth ui
 
 	bandwidth, err = inst.decodeLatestPrice(rsp)
 	return
+}
+
+func (inst *network) GetTransactionByID(txId string) (tx *core.Transaction, err error) {
+	return inst.grpcClient.GetTransactionByID(txId)
 }
 
 func (inst *network) decodeLatestPrice(rsp []byte) (price uint64, err error) {

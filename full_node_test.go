@@ -7,6 +7,8 @@ import (
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
 )
 
 var from = Address(os.Getenv("ADDR_FROM"))
@@ -152,6 +154,27 @@ func Test_GetCurrentBandwidthPrice(t *testing.T) {
 	wallet := getFullNode()
 	price, err := wallet.Network.GetCurrentBandwidthPrice(context.Background())
 	fmt.Println(price, err)
+}
+
+func Test_GetTransactionByID(t *testing.T) {
+	wallet := getFullNode()
+	id := ""
+	tx, err := wallet.Network.GetTransactionByID(id)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if len(tx.Ret) == 0 {
+		fmt.Println("fail")
+		return
+	}
+
+	if tx.Ret[0].ContractRet == core.Transaction_Result_SUCCESS {
+		fmt.Println("success")
+		return
+	}
+	fmt.Println("fail", tx.Ret[0].ContractRet)
 }
 
 // GetTransactionById
