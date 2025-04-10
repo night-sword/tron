@@ -28,6 +28,7 @@ func (inst *resource) GetByAccount(address Address) (r *AccountResource, err err
 	}
 
 	r = &AccountResource{
+		FreeNetUsed:       rs.GetFreeNetUsed(),
 		FreeNetLimit:      rs.GetFreeNetLimit(),
 		NetUsed:           rs.GetNetUsed(),
 		NetLimit:          rs.GetNetLimit(),

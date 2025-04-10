@@ -45,6 +45,7 @@ type UnDelegateResourceParams struct {
 }
 
 type AccountResource struct {
+	FreeNetUsed       int64 `json:"freeNetUsed"`       // Used free bandwidth
 	FreeNetLimit      int64 `json:"freeNetLimit"`      // Total free bandwidth
 	NetUsed           int64 `json:"netUsed"`           // Used amount of bandwidth obtained by staking
 	NetLimit          int64 `json:"netLimit"`          // Total bandwidth obtained by staking
