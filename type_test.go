@@ -1,6 +1,10 @@
 package tron
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/shopspring/decimal"
+)
 
 func TestSUN_TRX(t *testing.T) {
 	tests := []struct {
@@ -142,6 +146,70 @@ func TestTRX_Ceil(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.inst.Ceil(); got != tt.want {
 				t.Errorf("Ceil() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSUN_Decimal(t *testing.T) {
+	tests := []struct {
+		name     string
+		sun      SUN
+		expected string
+	}{
+		{
+			name:     "zero",
+			sun:      SUN(0),
+			expected: "0",
+		},
+		{
+			name:     "1 SUN",
+			sun:      SUN(1),
+			expected: "0.000001",
+		},
+		{
+			name:     "1000 SUN",
+			sun:      SUN(1000),
+			expected: "0.001",
+		},
+		{
+			name:     "1 TRX SUN (1000000)",
+			sun:      SUN(SUN_VALUE),
+			expected: "1",
+		},
+		{
+			name:     "10 TRX SUN",
+			sun:      SUN(10 * SUN_VALUE),
+			expected: "10",
+		},
+		{
+			name:     "decimal number",
+			sun:      SUN(1500000),
+			expected: "1.5",
+		},
+		{
+			name:     "big number",
+			sun:      SUN(1000000000000),
+			expected: "1000000",
+		},
+		{
+			name:     "max uint64",
+			sun:      SUN(18446744073709551615),
+			expected: "18446744073709.551615",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := tt.sun.Decimal()
+
+			if _, ok := interface{}(result).(decimal.Decimal); !ok {
+				t.Errorf("expect type decimal.Decimal, but got type: %T", result)
+			}
+
+			expected, _ := decimal.NewFromString(tt.expected)
+			if !result.Equal(expected) {
+				t.Errorf("expect: %s, got: %s", expected.String(), result.String())
 			}
 		})
 	}

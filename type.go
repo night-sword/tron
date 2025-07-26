@@ -5,6 +5,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
+	"github.com/shopspring/decimal"
 )
 
 type Address string // tron address
@@ -56,6 +57,10 @@ func (inst SUN) Uint64E() (u uint64, err error) {
 		err = errors.New("amount error")
 	}
 	return
+}
+
+func (inst SUN) Decimal() decimal.Decimal {
+	return decimal.NewFromUint64(inst.Uint64()).Div(decimal.NewFromUint64(SUN_VALUE))
 }
 
 // ---- TRX ---- //
