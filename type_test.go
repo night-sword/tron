@@ -214,3 +214,76 @@ func TestSUN_Decimal(t *testing.T) {
 		})
 	}
 }
+
+func TestNewTRXDecimalFromInt64(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    int64
+		expected string
+	}{
+		{
+			name:     "zero value",
+			input:    0,
+			expected: "0",
+		},
+		{
+			name:     "positive value - 1 SUN",
+			input:    1,
+			expected: "0.000001",
+		},
+		{
+			name:     "positive value - 1000000 SUN equals 1 TRX",
+			input:    1000000,
+			expected: "1",
+		},
+		{
+			name:     "positive value - 500000 SUN equals 0.5 TRX",
+			input:    500000,
+			expected: "0.5",
+		},
+		{
+			name:     "positive value - large number",
+			input:    1234567890,
+			expected: "1234.56789",
+		},
+		{
+			name:     "negative value - -1 SUN",
+			input:    -1,
+			expected: "-0.000001",
+		},
+		{
+			name:     "negative value - -1000000 SUN equals -1 TRX",
+			input:    -1000000,
+			expected: "-1",
+		},
+		{
+			name:     "negative value - large negative number",
+			input:    -1234567890,
+			expected: "-1234.56789",
+		},
+		{
+			name:     "max int64 value",
+			input:    9223372036854775807,
+			expected: "9223372036854.775807",
+		},
+		{
+			name:     "min int64 value",
+			input:    -9223372036854775808,
+			expected: "-9223372036854.775808",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := NewTRXDecimalFromInt64(tt.input)
+			expected, err := decimal.NewFromString(tt.expected)
+			if err != nil {
+				t.Fatalf("failed to create expected decimal: %v", err)
+			}
+
+			if !result.Equal(expected) {
+				t.Errorf("NewTRXDecimalFromInt64(%d) = %s, want %s", tt.input, result.String(), expected.String())
+			}
+		})
+	}
+}

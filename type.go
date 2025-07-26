@@ -65,6 +65,14 @@ func (inst SUN) Decimal() decimal.Decimal {
 
 // ---- TRX ---- //
 
+func NewTRXDecimalFromInt64(i int64) decimal.Decimal {
+	return decimal.NewFromInt(i).Div(decimal.NewFromUint64(SUN_VALUE))
+}
+
+func NewTRXFromInt64(i int64) TRX {
+	return TRX(decimal.NewFromInt(i).Div(decimal.NewFromUint64(SUN_VALUE)).InexactFloat64())
+}
+
 func (inst TRX) Float64() float64 {
 	return float64(inst)
 }
