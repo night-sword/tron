@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/fbsobreira/gotron-sdk/pkg/proto/core"
+	"github.com/samber/lo"
 )
 
 var from = Address(os.Getenv("ADDR_FROM"))
@@ -17,6 +18,7 @@ var key = os.Getenv("PRIVATE_KEY")
 var blockNum = os.Getenv("BLOCK_NUM")
 
 var USDT_CONTRACT = Address("TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs")
+
 //var USDT_CONTRACT = Address("TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t")
 
 func Test_Transfer(t *testing.T) {
@@ -194,6 +196,40 @@ func Test_Transfer_TransferUSDT(t *testing.T) {
 	node := getFullNode()
 	txID, err := node.Transfer.TransferUSDT(from, to, USDT_CONTRACT, 1000000, from, 100*SUN_VALUE, 0)
 	fmt.Println(txID, err)
+}
+
+func Test_Network_GetBlockInfoByNum(t *testing.T) {
+	node := getFullNode()
+	list, err := node.Network.GetBlockInfoByNum(71322648)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	id2info := lo.Associate(list.GetTransactionInfo(), func(item *core.TransactionInfo) (txID string, tx *core.TransactionInfo) {
+		return EncodeTxId(item.GetId()), item
+	})
+
+	for id, info := range id2info {
+		fmt.Println(id, EncodeTxId(info.GetContractAddress()))
+	}
+}
+
+func Test_Network_GetBlockByNum(t *testing.T) {
+	node := getFullNode()
+
+	block, err := node.Network.GetBlockByNum(71322648)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	txs := block.GetTransactions()
+	for _, tx := range txs {
+		txid := EncodeTxId(tx.GetTxid())
+		fmt.Println(txid)
+	}
+	return
 }
 
 func getFullNode() *FullNode {

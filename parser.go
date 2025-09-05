@@ -51,18 +51,20 @@ func (inst *parser) SmartContractEvent(transaction *core.Transaction) (contractE
 		return
 	}
 
-	method, to, value, err := inst.ContractInput(common.Bytes2Hex(tsc.GetData()))
+	method, from, to, value, err := inst.ContractInput(common.Bytes2Hex(tsc.GetData()))
 	if err != nil {
 		err = errors.New("parse contract input fail")
 		return
 	}
+	if from == "" {
+		from = Address(address.HexToAddress(common.Bytes2Hex(tsc.GetOwnerAddress())).String())
+	}
 
-	owner := address.HexToAddress(common.Bytes2Hex(tsc.GetOwnerAddress())).String()
-	contract := address.HexToAddress(common.Bytes2Hex(tsc.GetContractAddress())).String()
+	contract := Address(address.HexToAddress(common.Bytes2Hex(tsc.GetContractAddress())).String())
 
 	contractEvent = &SmartContractEvent{
-		Contract: Address(contract),
-		Owner:    Address(owner),
+		Contract: contract,
+		Owner:    from,
 		To:       to,
 		Amount:   value,
 		Method:   method,
@@ -71,7 +73,7 @@ func (inst *parser) SmartContractEvent(transaction *core.Transaction) (contractE
 	return
 }
 
-func (inst *parser) ContractInput(data string) (method ContractMethod, to Address, value SUN, err error) {
+func (inst *parser) ContractInput(data string) (method ContractMethod, from, to Address, value SUN, err error) {
 	dataLen := len(data)
 
 	if dataLen <= methodIDLength {
@@ -83,6 +85,27 @@ func (inst *parser) ContractInput(data string) (method ContractMethod, to Addres
 	if err != nil {
 		method, err = ContractMethod(0), nil
 	}
+
+	switch method {
+	case ContractUSDTMethod_TransferFrom:
+		// TransferFrom: method(8) + from(64) + to(64) + value(64) = 200 bytes
+		// method ContractMethod, from, to Address, value SUN, err error
+		return inst.parseTransferFrom(data, dataLen)
+	case ContractUSDTMethod_Transfer:
+		from = ""
+		// Transfer: method(8) + to(64) + value(64) = 136 bytes
+		method, to, value, err = inst.parseTransfer(data, dataLen)
+		return
+	default:
+		from = ""
+		method, to, value, err = inst.parseTransfer(data, dataLen)
+		return
+	}
+}
+
+// parse Transfer method
+func (inst *parser) parseTransfer(data string, dataLen int) (method ContractMethod, to Address, value SUN, err error) {
+	method, _ = ContractMethodFromStr(data[:methodIDLength])
 
 	if dataLen >= methodIDLength+addressLength+valueLength {
 		addr, v, e := inst.getAddressValueFromData(
@@ -103,6 +126,7 @@ func (inst *parser) ContractInput(data string) (method ContractMethod, to Addres
 		to, value, err = Address(addr), SUN(v), e
 		return
 	}
+
 	// Collect other encoding information.
 	if dataLen != methodIDLength+addressLength+valueLength &&
 		dataLen != methodIDLength+addressLength+valueLength+2 && // Unknown reason for the extra length.
@@ -110,9 +134,41 @@ func (inst *parser) ContractInput(data string) (method ContractMethod, to Addres
 		dataLen != methodIDLength+addressLength+valueLength+6 && // Unknown reason for the extra length.
 		dataLen != methodIDLength+addressLength+valueLength+8 && // Unknown reason for the extra length.
 		dataLen != methodIDLength+42 { // Short amount: Method + Address + Amount (missing 2 characters).
-		// localLog.Error(`UnpackTransfer original data encoding length not in parsing range`, zap.Int(`length`, dataLen), zap.String(`original data`, data))
 		return ContractMethod(0), ``, 0, errors.New("UnpackTransfer original data encoding length error")
 	}
+	return
+}
+
+// parse TransferFrom method
+func (inst *parser) parseTransferFrom(data string, dataLen int) (method ContractMethod, from, to Address, value SUN, err error) {
+	method, _ = ContractMethodFromStr(data[:methodIDLength])
+
+	// TransferFrom : method(8) + from(64) + to(64) + value(64) = 200 bytes
+	expectedLength := methodIDLength + addressLength + addressLength + valueLength
+
+	if dataLen >= expectedLength {
+		fromStart := methodIDLength
+		fromAddr, e := inst.getAddressFromData(data[fromStart : fromStart+addressLength])
+		if err = e; err != nil {
+			return
+		}
+
+		toStart := fromStart + addressLength
+		valueStart := toStart + addressLength
+
+		toAddr, v, e := inst.getAddressValueFromData(
+			data[toStart:toStart+addressLength],
+			data[valueStart:valueStart+valueLength],
+		)
+		if err = e; err != nil {
+			return
+		}
+
+		from, to, value = Address(fromAddr), Address(toAddr), SUN(v)
+		return
+	}
+
+	err = errors.New("TransferFrom data length insufficient")
 	return
 }
 
