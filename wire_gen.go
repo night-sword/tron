@@ -20,7 +20,7 @@ func NewFullNode(grpcClient *client.GrpcClient, httpClient *resty.Client) *FullN
 	tronAccount := newAccount(grpcClient, tronTransaction)
 	tronNetwork := newNetwork(grpcClient, httpClient)
 	tronSolidity := newSolidity(httpClient)
-	fullNode := newFullNode(tronPrivateKey, tronResource, tronTransfer, tronTransaction, tronAccount, tronNetwork, tronSolidity)
+	fullNode := newFullNode(grpcClient, tronPrivateKey, tronResource, tronTransfer, tronTransaction, tronAccount, tronNetwork, tronSolidity)
 	return fullNode
 }
 
