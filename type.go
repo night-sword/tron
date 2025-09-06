@@ -4,6 +4,7 @@ import (
 	"math"
 
 	"github.com/pkg/errors"
+	"github.com/samber/lo"
 	"github.com/shockerli/cvt"
 	"github.com/shopspring/decimal"
 )
@@ -29,6 +30,20 @@ func AddressFromStr(addr string) (address Address, err error) {
 	}
 
 	return
+}
+
+type AddressList []Address
+
+func NewAddressList(addrs []string) (list AddressList) {
+	return lo.Map(addrs, func(addr string, _ int) Address {
+		return Address(addr)
+	})
+}
+
+func (inst AddressList) ToStrs() []string {
+	return lo.Map(inst, func(v Address, _ int) string {
+		return v.String()
+	})
 }
 
 // ---- SUN ---- //
