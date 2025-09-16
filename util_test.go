@@ -1,6 +1,9 @@
 package tron
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestIsAddressValid(t *testing.T) {
 	type args struct {
@@ -23,6 +26,32 @@ func TestIsAddressValid(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := IsAddressValid(tt.args.address); got != tt.want {
 				t.Errorf("IsAddressValid() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestValidAddressPk(t *testing.T) {
+	addr, pk, err := CreateAccount()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	tests := []struct {
+		name   string
+		addr   Address
+		pk     string
+		wantOk bool
+	}{
+		{
+			"case.1", addr, pk, true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotOk := ValidAddressPk(tt.addr, tt.pk); gotOk != tt.wantOk {
+				t.Errorf("ValidAddressPk() = %v, want %v", gotOk, tt.wantOk)
 			}
 		})
 	}
