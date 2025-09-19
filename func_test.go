@@ -1,6 +1,8 @@
 package tron
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestPadLeftStr(t *testing.T) {
 	type args struct {
